@@ -3,7 +3,9 @@ class Parser:
     """Parser for the Hack Assembly Language"""
 
     def __init__(self, dir):
+
         """Open file if it exists or if it has permission."""
+
         try:
             self.f=open(dir)
         except (PermissionError,FileNotFoundError) as e:
@@ -29,8 +31,9 @@ class Parser:
         while True:
             self.countLine+=1
             self.currentInstruction = self.fileLines[self.countLine]
-            self.currentInstruction = self.deleteCommentary()
+            self.currentInstruction = self.ignoreCommentary()
             if len(self.currentInstruction.strip()) != 0: break;
+            if self.countLine == (len(self.fileLines)-1): break;
 
 
     def instructionType(self):
@@ -40,6 +43,7 @@ class Parser:
         if '@' in self.currentInstruction: return 'A_Instruction'
         elif '=' in self.currentInstruction or ';' in self.currentInstruction: return 'C_Instruction'
         elif '(' in self.currentInstruction and ')' in self.currentInstruction: return 'L_Instruction'
+        elif '' in self.currentInstruction and self.countLine == (len(self.fileLines)-1): return 0
         else:
             print("ERROR: The instruction "+self.currentInstruction.strip()+" doesn't exists in the Hack Assembly Grammar")
             exit(1)
@@ -130,9 +134,9 @@ class Parser:
             return ''
 
 
-    def deleteCommentary(self):
+    def ignoreCommentary(self):
 
-        """Deletes commentary of current instruction, if it has one."""
+        """ignores commentary of current instruction, if it has one."""
 
         if "//" in self.currentInstruction:
             arr = self.currentInstruction.split("//")
