@@ -3,6 +3,10 @@ from symbolTable import SymbolTable
 from parser import Parser
 import sys
 
+""" This first group of code is to add environmental variables to the code,
+    they tell the compiler to read the file that is given as an enviromental variable
+    and check if it's a '.asm' file, if it isn't, it returns an error, as it isn't a supported
+    file of the Hack Assembly Language. """
 
 args = sys.argv
 
@@ -15,8 +19,17 @@ if not ".asm" in file_name:
     print("ERROR: file type not supported, must be '.asm'.")
     exit(1)
 
+#Takes the name of the '.asm' file and adds it to the output file '.hack'
+
 file_out = file_name.split('.asm')
 file_out = file_out[0] + '.hack'
+
+""" After reading the file, we start reading its content twice by
+    calling the parser, and in the first run, we check any LOOP Tags
+    inside the Assembly Code, add their line_of_code and their name in the Symbols Table,
+    and add a 1 to the ROM counter, so the next LOOP tag, if there are more, may be added to the Symbols Table.
+    The loop runs until there aren't instructions left to check inside the file.
+"""
 
 countROM=0
 countRAM=16
@@ -36,6 +49,13 @@ while firstRun.hasMoreInstructions():
 
     else:
         countROM+=1
+
+""" Then, we run the parser for the second twice, Where we now, start the translating each instruction
+    of the code. We first check the instruction type, and then we start to 'extract' its content and
+    translate it one by one, create a new line uniting them (because they compose one instruction after all) with and '/n' (new line)
+    , and finally we add it to a String, that has all the translated code inside it.
+    We finally add the Translated String into the output '.hack' file.
+"""
 
 secondRun = Parser(file_name)
 

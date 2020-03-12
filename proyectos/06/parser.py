@@ -38,12 +38,13 @@ class Parser:
 
     def instructionType(self):
 
-        """Checks the type of instruction."""
+        """Checks the type of instruction.
+            returns the type of instruction"""
 
         if '@' in self.currentInstruction: return 'A_Instruction'
         elif '=' in self.currentInstruction or ';' in self.currentInstruction: return 'C_Instruction'
         elif '(' in self.currentInstruction and ')' in self.currentInstruction: return 'L_Instruction'
-        elif '' in self.currentInstruction and self.countLine == (len(self.fileLines)-1): return 0
+        elif '' in self.currentInstruction and self.countLine == (len(self.fileLines)-1): return 0 #This case is when there is a comment in the last line, therfore, the case ignores the comment and returns 0 to exit the compiler without errors.
         else:
             print("ERROR: The instruction "+self.currentInstruction.strip()+" doesn't exists in the Hack Assembly Grammar")
             exit(1)
