@@ -32,6 +32,7 @@ class Parser:
             self.countLine+=1
             self.currentInstruction = self.fileLines[self.countLine]
             self.currentInstruction = self.ignoreCommentary()
+            print(self.currentInstruction)
             if len(self.currentInstruction.strip()) != 0: break;
             if self.countLine == (len(self.fileLines)-1): break;
 
@@ -77,6 +78,11 @@ class Parser:
             else: current_char = currentLine[position]
 
         currentLine=currentLine.strip()
+
+        if xxx[0] == " ":
+            print("ERROR: Variable is not defined correctly, has an space.")
+            exit(1)
+
         xxx=xxx.strip()
 
         if len(xxx)==0 and instructionL:
