@@ -108,8 +108,10 @@ class VM_Writer:
                 self.hack_code+='li $t8,' + index + '\n'
                 self.hack_code+='sw $t8,0($sp)\n' #Save $t7 in $SP
                 self.hack_code+='subiu $sp,$sp,4\n' #SP position -1
-            elif segment=='pointer':
-                self.hack_code+=()
+            elif segment=='argument' or segment=='local': 
+                self.hack_code+=('lw $t8,'+str(int(index)*-4)+'('+initialValue[segment]+')\n')
+                self.hack_code+=('sw $t8,0($sp) #'+command+' '+segment+'\n')
+                self.hack_code+=('subiu $sp,$sp,4\n')
             else:
                 self.hack_code+='lw $t8,' + str(int(index)*4) + '('+initialValue[segment]+')\n'
                 self.hack_code+='sw $t8,0($sp)\n'
@@ -117,8 +119,10 @@ class VM_Writer:
         
         elif command =='C_POP':
 
-            if segment=='pointer':
-                self.hack_code+=()
+            if segment=='argument' or segment=='local': 
+                self.hack_code+=('addiu $sp,$sp,4\n')
+                self.hack_code+=('lw $t7,0($sp)\n')
+                self.hack_code+=('sw $t7,'+str(int(index)*-4)+'('+initialValue[segment]+') #'+command+' '+segment+'\n')
             else:
                 self.hack_code+='addiu $sp,$sp,4\n'
                 self.hack_code+='lw $t8,0($sp)\n'
@@ -152,7 +156,7 @@ class VM_Writer:
 
 
 
-    def writeIfGoto(self,label):
+    def writeIf(self,label):
 
         """Write the IF Module to MIPS Language"""
 
@@ -198,7 +202,7 @@ class VM_Writer:
         resta=str((int(num_of_args)*4)+20)
         self.hack_code+=('  subiu $t1,$sp,'+resta+'\n') #ARG = SP - 5 - numArgs
 
-        self.hack_code+=('  j '+function_name+'\n')
+        self.hack_code+=('  j '+function_name+'\n\n')
 
         self.file.write(self.hack_code) 
         self.hack_code = ''
@@ -216,12 +220,15 @@ class VM_Writer:
         self.hack_code+=('addiu $t7,$t8,20\n') # T7 es igual a retAddr
         self.hack_code+=('lw $t7,0($t8)\n') 
 
-        self.textMain+=('add $sp,$sp,4\n')
-        self.textMain+=('lw $t9,0($sp)\n') 
-        self.textMain+=('sw $t9,0($t1)\n') # ARG = pop (?)
+        self.hack_code+=('add $sp,$sp,4\n')
+        self.hack_code+=('lw $t9,0($sp)\n') 
+        self.hack_code+=('sw $t9,0($t1)\n') # ARG = pop (?)
 
         self.hack_code+=('subiu $sp,$t1,4\n') #SP = ARG + 1
         self.hack_code+=('addiu $t3,$t8,4\n') #THAT = endFrame-1T
+
+
+
         self.hack_code+=('addiu $t2,$t8,8\n') #THIS = endFrame-2
         self.hack_code+=('addiu $t1,$t8,12\n') #ARG = endFrame-3
         self.hack_code+=('addiu $t0,$t8,16\n') #LCL = endFrame-4
@@ -243,7 +250,7 @@ class VM_Writer:
         for i in range(int(num_of_locals)):
             self.hack_code+='   subi $sp,$sp,4\n'
             self.hack_code+='   sw $t8,0($sp)\n'
-        self.hack_code+=('\n#function end\n')
+        self.hack_code+=('\n#function end\n\n')
         self.file.write(self.hack_code) 
         self.hack_code = ''    
             
